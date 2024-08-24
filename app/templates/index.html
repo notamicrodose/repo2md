@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>repo2md</title>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/styles.css') }}"
+        />
+    </head>
+    <body>
+        <div class="container">
+            <h1>repo2md</h1>
+            <div id="drop-area">
+                <form class="my-form">
+                    <p>
+                        Upload a directory by dragging and dropping onto the
+                        dashed region
+                    </p>
+                    <p>
+                        <small
+                            >Note: .png, .webp, .svg, .jpg, .jpeg, and .gif
+                            files will be excluded</small
+                        >
+                    </p>
+                    <input
+                        type="file"
+                        id="fileElem"
+                        multiple
+                        webkitdirectory
+                        directory
+                    />
+                    <label class="button" for="fileElem">Select repo</label>
+                </form>
+            </div>
+            <div id="gallery"></div>
+            <button id="uploadBtn" class="button">Upload Files</button>
+            <button id="downloadBtn" class="button" style="display: none">
+                Download Combined File
+            </button>
+            <div id="status"></div>
+            <div id="progress-bar-container" style="display: none">
+                <div id="progress-bar"></div>
+            </div>
+        </div>
+        <script
+            type="text/javascript"
+            src="{{ url_for('static', filename='js/script.js') }}"
+        ></script>
+    </body>
+</html>
