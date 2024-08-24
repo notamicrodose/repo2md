@@ -1,8 +1,6 @@
-# File Combiner
+# repo2gh
 
-File Combiner is a Flask-based web application that allows users to upload multiple files and combine them into a single Markdown file.
-
-I have created this tool to make it easier for myself to share code with LLMs. Its very basic, but it does the job.
+repo2gh is a Flask-based web app that allows users to upload repos (folders) and combine them into a single Markdown file to make it easier to share code with LLMs. Its basic, but it does the job.
 
 ## Features
 
@@ -10,6 +8,7 @@ I have created this tool to make it easier for myself to share code with LLMs. I
 - Progress bar for upload status
 - Combines various file types into a single Markdown file
 - Download the combined file
+- Excludes certain file types from the combined file (node_modules, .git, etc.)
 
 ## Installation
 
