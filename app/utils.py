@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 from werkzeug.utils import secure_filename
 from app.config import Config
 
@@ -9,7 +10,14 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
 
 def excluded_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.EXCLUDED_EXTENSIONS
+    lower_filename = filename.lower()
+    # Add explicit checks for specific patterns like '.min.js'
+    if lower_filename.endswith('.min.js') or lower_filename.endswith('.min.css'):
+        return True
+    # Continue with the general exclusion check
+    extension = lower_filename.rsplit('.', 1)[1] if '.' in lower_filename else ''
+    return extension in Config.EXCLUDED_EXTENSIONS
+
 
 def excluded_directory(path):
     return any(excluded in path.split(os.path.sep) for excluded in Config.EXCLUDED_DIRECTORIES)
@@ -36,7 +44,9 @@ def get_language_from_extension(filename):
         'kt': 'kotlin',
         'swift': 'swift',
         'r': 'r',
-        'sql': 'sql'
+        'sql': 'sql',
+        'md': 'markdown',
+        'txt': 'plaintext'
     }
     return language_map.get(ext, '')
 
@@ -53,7 +63,13 @@ def process_file(file_path, relative_path):
         content = f"Error processing file: {str(e)}"
 
     language = get_language_from_extension(file_path)
-    return f"# {relative_path}\n\n```{language}\n{content}\n```\n\n"
+    
+    if language == 'markdown':
+        # Escape hashtags only at the beginning of lines in Markdown content
+        escaped_content = re.sub(r'(^|\n)#', r'\1\\#', content)
+        return f"# {relative_path}\n\n<markdown>\n{escaped_content}\n</markdown>\n\n"
+    else:
+        return f"# {relative_path}\n\n```{language}\n{content}\n```\n\n"
 
 def combine_files(directory_path):
     repo_name = os.path.basename(directory_path)

@@ -190,60 +190,81 @@ document.addEventListener("DOMContentLoaded", function () {
 function displayPreview(content) {
   const previewElement = document.getElementById('preview');
   if (previewElement) {
-      // Create file content element
-      const fileContentElement = document.createElement('div');
-      fileContentElement.className = 'file-content';
+    const fileContentElement = document.createElement('div');
+    fileContentElement.className = 'file-content';
 
-      // Split the content into sections
-      const sections = content.split('\n# ');
+    const sections = content.split('\n# ');
 
-      sections.forEach((section, index) => {
-          if (index === 0) {
-              // This is the repository name section
-              const repoNameElement = document.createElement('h2');
-              repoNameElement.textContent = section.trim();
-              fileContentElement.appendChild(repoNameElement);
-          } else if (section.startsWith('File Tree')) {
-              // This is the file tree section
-              const fileTreeElement = document.createElement('div');
-              fileTreeElement.className = 'file-tree';
-              const pre = document.createElement('pre');
-              const code = document.createElement('code');
-              code.className = 'language-plaintext';
-              code.textContent = section.split('```\n')[1].split('\n```')[0].trim();
-              pre.appendChild(code);
-              fileTreeElement.appendChild(pre);
-              fileContentElement.appendChild(fileTreeElement);
+    sections.forEach((section, index) => {
+      if (index === 0) {
+        const repoNameElement = document.createElement('h2');
+        repoNameElement.textContent = section.trim();
+        fileContentElement.appendChild(repoNameElement);
+      } else if (section.startsWith('File Tree')) {
+        const fileTreeElement = document.createElement('div');
+        fileTreeElement.className = 'file-tree';
+        const pre = document.createElement('pre');
+        const code = document.createElement('code');
+        code.className = 'language-plaintext';
+        code.textContent = section.split('```\n')[1].split('\n```')[0].trim();
+        pre.appendChild(code);
+        fileTreeElement.appendChild(pre);
+        fileContentElement.appendChild(fileTreeElement);
+      } else {
+        const sectionElement = document.createElement('div');
+        sectionElement.className = 'file-section';
+        const lines = section.split('\n');
+        const header = lines.shift();
+        const headerElement = document.createElement('h3');
+        headerElement.className = 'file-header';
+        headerElement.textContent = header.trim();
+        sectionElement.appendChild(headerElement);
+
+        const contentElement = document.createElement('div');
+        contentElement.className = 'file-content';
+
+        if (header.trim().toLowerCase().endsWith('.md')) {
+          const markdownContent = lines.join('\n').match(/<markdown>([\s\S]*?)<\/markdown>/)[1];
+          const unescapedContent = markdownContent.replace(/^\\#/gm, '#');
+          contentElement.innerHTML = marked.parse(unescapedContent);
+        } else {
+          const bodyElement = document.createElement('pre');
+          bodyElement.className = 'file-body';
+          const codeElement = document.createElement('code');
+          
+          const match = lines.join('\n').match(/```(\w+)?\n([\s\S]*?)\n```/);
+          if (match) {
+            let language = match[1] || 'plaintext';
+            const codeContent = match[2];
+            
+            codeElement.className = `language-${language}`;
+            codeElement.textContent = codeContent.trim();
           } else {
-              // This is a file content section
-              const sectionElement = document.createElement('div');
-              sectionElement.className = 'file-section';
-              const lines = section.split('\n');
-              const header = lines.shift(); // Remove and store the first line as header
-              const headerElement = document.createElement('h3');
-              headerElement.className = 'file-header';
-              headerElement.textContent = header.trim();
-              const bodyElement = document.createElement('pre');
-              bodyElement.className = 'file-body';
-              const codeElement = document.createElement('code');
-              codeElement.textContent = lines.join('\n').trim();
-              bodyElement.appendChild(codeElement);
-              sectionElement.appendChild(headerElement);
-              sectionElement.appendChild(bodyElement);
-              fileContentElement.appendChild(sectionElement);
+            codeElement.className = 'language-plaintext';
+            codeElement.textContent = lines.join('\n').trim();
           }
-      });
+          
+          bodyElement.appendChild(codeElement);
+          contentElement.appendChild(bodyElement);
+        }
+        
+        sectionElement.appendChild(contentElement);
+        fileContentElement.appendChild(sectionElement);
+      }
+    });
 
-      // Clear previous content and add new elements
-      previewElement.innerHTML = '';
-      previewElement.appendChild(fileContentElement);
+    previewElement.innerHTML = '';
+    previewElement.appendChild(fileContentElement);
 
-      // Apply syntax highlighting
+    if (typeof hljs !== 'undefined') {
       document.querySelectorAll('pre code').forEach((block) => {
-          hljs.highlightElement(block);
+        hljs.highlightElement(block);
       });
+    } else {
+      console.warn('highlight.js is not loaded. Syntax highlighting may not work.');
+    }
   } else {
-      console.error('Preview element not found');
+    console.error('Preview element not found');
   }
 }
 
@@ -305,7 +326,7 @@ function displayPreview(content) {
     let files = dt.files;
     handleFiles({ target: { files: files } });
   }
-
+ 
   function displayFileTree(fileTree) {
     console.log("Displaying file tree:", fileTree);
     let treeContainer = document.getElementById('fileTree');

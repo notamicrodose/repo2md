@@ -11,7 +11,14 @@ def create_app(config_class=Config):
 
     @app.after_request
     def add_csp_header(response):
-        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+        csp = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "img-src 'self' data:;"
+        )
+        response.headers['Content-Security-Policy'] = csp
         return response
 
     from app import routes

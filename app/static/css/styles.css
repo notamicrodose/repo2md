@@ -13,9 +13,6 @@
     --success-color: #28c76f; /* Bright green */
     --error-color: #ff4b4b; /* More vivid coral red */
 }
-
-
-
 * {
     margin: 0;
     padding: 0;
@@ -40,6 +37,12 @@ body {
     background-color: var(--card-background);
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
     padding: 1rem 0;
+}
+
+.h-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .header-title {
@@ -190,7 +193,7 @@ body {
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: .5rem;
-    max-height: 200px !important;
+    max-height: 280px !important;
     overflow-y: auto;
     background: #212131;
     padding: 0.5rem;
@@ -231,8 +234,8 @@ body {
 
 .status {
     margin-top: 1rem;
-    font-style: italic;
-    color: var(--text-muted);
+    font-style: normal;
+    color: var(--secondary-color);
 }
 
 .progress-container {
@@ -271,7 +274,11 @@ body {
     white-space: pre-wrap;
     word-break: break-all;
     color: var(--text-color);
-}
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    background: #101018;
+    border-radius: 0.5rem;
+  }
 
 .file-section {
     border: 1px solid var(--border-color);
