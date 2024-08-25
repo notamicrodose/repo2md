@@ -133,7 +133,7 @@ body {
 .upload-icon {
     width: 32px;
     height: 32px;
-    margin-top: 1rem;
+    /* margin-top: 1rem; */
     margin-bottom: 0.5rem;
     color: var(--primary-color);
 }
@@ -147,7 +147,7 @@ body {
 
 .upload-subtext {
     color: var(--text-muted);
-    margin-bottom: 1rem;
+    margin-bottom: .4rem;
 }
 
 .btn {
@@ -165,6 +165,7 @@ body {
 .btn-primary {
     background-color: var(--primary-color);
     color: white;
+    margin-bottom: .3rem;
 }
 
 .btn-primary:hover {
