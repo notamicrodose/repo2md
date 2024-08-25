@@ -1,14 +1,20 @@
-# repo2gh
+# repo2md
 
-repo2gh is a Flask-based web app that allows users to upload github repos (essentially folders) and combine them into a single Markdown file to make it easier to share code with LLMs. Its basic, but it does the job. Contributions are welcome!
+repo2md is a Flask-based web app that allows users to upload github repos (folders) and combine them into a single Markdown file to make it easier to share code with LLMs. Its basic, but it does the job. Contributions are welcome!
 
 ## Features
 
-- Drag and drop file upload
-- Progress bar for upload status
-- Combines various file types into a single Markdown file
-- Download the combined file
+- Drag and drop file uploader
+- Deselect unwanted file before downloading
+- Combines various file types into a single Markdown file via simple UI
+- Download the combined md file
 - Excludes certain file types from the combined file (node_modules, .git, etc.)
+- Creates a file tree of the repo for the LLM to know the structure of the project
+
+## Roadmap
+
+- Display a preview of the generated markdown file
+- Add ability to deselect specific folders from the output
 
 ## Installation
 
