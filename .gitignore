@@ -1,6 +1,4 @@
-uploads/*
-
-!uploads/
-
+/uploads/*
+!/uploads/.gitkeep  # or another file you want to keep tracked
 __pycache__/
-__init__.py
+/__init__.py
