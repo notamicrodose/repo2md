@@ -1,6 +1,6 @@
 # repo2gh
 
-repo2gh is a Flask-based web app that allows users to upload repos (folders) and combine them into a single Markdown file to make it easier to share code with LLMs. Its basic, but it does the job.
+repo2gh is a Flask-based web app that allows users to upload github repos (essentially folders) and combine them into a single Markdown file to make it easier to share code with LLMs. Its basic, but it does the job. Contributions are welcome!
 
 ## Features
 
@@ -39,10 +39,6 @@ repo2gh is a Flask-based web app that allows users to upload repos (folders) and
 2. Open a web browser and go to `http://localhost:5000`
 
 3. Use the interface to upload files, combine them, and download the result.
-
-## Contributing
-
-Contributions are welcome!
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

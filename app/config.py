@@ -20,7 +20,7 @@ class Config:
         # Settings and configs
         'ini', 'cfg', 'conf', 'json', 'yaml', 'yml', 'toml',
         # Other
-        'log', 'lock', 'bak', 'tmp', 'swp', 'swo', 'DS_Store'
+        'log', 'lock', 'bak', 'tmp', 'swp', 'swo', 'DS_Store', '.DS_Store'
     }
     EXCLUDED_DIRECTORIES = {'node_modules', '__pycache__', '.git', '.svn', '.hg', '.idea', '.vscode', 'build', 'dist', 'target'}
     MAX_CONTENT_LENGTH = 1000 * 1024 * 1024  # 1000 MB

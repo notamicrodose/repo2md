@@ -8,11 +8,15 @@
             rel="stylesheet"
             href="{{ url_for('static', filename='css/styles.css') }}"
         />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+            rel="stylesheet"
+        />
     </head>
     <body>
         <div class="container">
             <h1>repo2md</h1>
-            <div id="drop-area">
+            <div id="drop-area" class="drop-area">
                 <form class="my-form">
                     <p>
                         Upload a directory by dragging and dropping onto the
@@ -31,18 +35,35 @@
                         webkitdirectory
                         directory
                     />
-                    <label class="button" for="fileElem">Select repo</label>
+                    <label class="button" for="fileElem"
+                        >Select Repository</label
+                    >
                 </form>
             </div>
-            <div id="gallery"></div>
-            <button id="uploadBtn" class="button">Upload Files</button>
-            <button id="downloadBtn" class="button" style="display: none">
-                Download Combined File
-            </button>
-            <div id="status"></div>
-            <div id="progress-bar-container" style="display: none">
-                <div id="progress-bar"></div>
+            <div id="gallery" class="gallery"></div>
+            <div id="centerdiv">
+                <button id="uploadBtn" class="button primary">
+                    Upload Files
+                </button>
+                <button
+                    id="downloadBtn"
+                    class="button secondary"
+                    style="display: none"
+                >
+                    Download Combined File
+                </button>
             </div>
+
+            <div id="status" class="status"></div>
+            <div id="fileCount" class="file-count">0 files selected</div>
+            <div
+                id="progress-bar-container"
+                class="progress-bar-container"
+                style="display: none"
+            >
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div id="fileTree"></div>
         </div>
         <script
             type="text/javascript"

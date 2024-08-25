@@ -60,7 +60,9 @@ document.addEventListener("DOMContentLoaded", function () {
     "swp",
     "swo",
     "DS_Store",
+    ".DS_Store",
   ];
+
   const excludedDirectories = [
     "node_modules",
     "__pycache__",
@@ -73,6 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "dist",
     "target",
   ];
+
   let uploadedFiles = [];
   let downloadFilename = "";
 
@@ -94,14 +97,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const path = file.webkitRelativePath || file.name;
     const directories = path.split("/");
 
-    // Check if the file is in an excluded directory
     for (let dir of directories) {
       if (excludedDirectories.includes(dir)) {
         return false;
       }
     }
 
-    // Check if the file has an excluded extension
     return !excludedExtensions.includes(extension);
   }
 
@@ -111,14 +112,50 @@ document.addEventListener("DOMContentLoaded", function () {
     updateGallery();
   }
 
+  // function updateGallery() {
+  //   let gallery = document.getElementById("gallery");
+  //   gallery.innerHTML = "";
+  //   uploadedFiles.forEach((file, index) => {
+  //     let div = document.createElement("div");
+  //     div.textContent = `${file.webkitRelativePath || file.name} (${formatFileSize(file.size)})`;
+
+  //     // Create remove icon
+  //     let removeIcon = document.createElement("span");
+  //     removeIcon.textContent = "X";
+  //     removeIcon.classList.add("remove-icon");
+  //     removeIcon.addEventListener("click", function () {
+  //       removeFile(index);
+  //     });
+
+  //     div.appendChild(removeIcon);
+  //     gallery.appendChild(div);
+  //   });
+  // }
   function updateGallery() {
     let gallery = document.getElementById("gallery");
     gallery.innerHTML = "";
-    uploadedFiles.forEach((file) => {
+    uploadedFiles.forEach((file, index) => {
       let div = document.createElement("div");
       div.textContent = `${file.webkitRelativePath || file.name} (${formatFileSize(file.size)})`;
+      // Create remove icon
+      let removeIcon = document.createElement("span");
+      removeIcon.textContent = "X";
+      removeIcon.classList.add("remove-icon");
+      removeIcon.addEventListener("click", function () {
+        removeFile(index);
+      });
+
+      div.appendChild(removeIcon);
       gallery.appendChild(div);
     });
+
+    document.getElementById("fileCount").textContent =
+      `${uploadedFiles.length} files selected`;
+  }
+
+  function removeFile(index) {
+    uploadedFiles.splice(index, 1);
+    updateGallery();
   }
 
   function formatFileSize(bytes) {
@@ -153,46 +190,166 @@ document.addEventListener("DOMContentLoaded", function () {
     handleFiles({ target: { files: files } });
   }
 
-  uploadButton.addEventListener("click", function () {
-    if (uploadedFiles.length === 0) {
+  // uploadButton.addEventListener("click", function () {
+  //   if (uploadedFiles.length === 0) {
+  //     updateStatus("No files selected");
+  //     return;
+  //   }
+
+  //   let formData = new FormData();
+  //   uploadedFiles.forEach((file) => formData.append("files[]", file));
+
+  //   updateStatus("Uploading files...");
+  //   progressBarContainer.style.display = "block";
+  //   progressBar.style.width = "0%";
+
+  //   function displayFileTree(fileTree) {
+  //     let treeContainer = document.getElementById('fileTree');
+  //     treeContainer.innerHTML = '<pre>' + fileTree + '</pre>';
+  //     treeContainer.style.display = 'block';
+  // }
+    
+
+  //   fetch("/upload", {
+  //     method: "POST",
+  //     body: formData,
+  //   })
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         return response.json().then((err) => {
+  //           throw err;
+  //         });
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((data) => {
+  //       updateStatus(data.message);
+  //       downloadButton.style.display = "inline-block";
+  //       progressBarContainer.style.display = "none";
+  //       downloadFilename = data.filename;
+  //       displayFileTree(data.file_tree);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error:", error);
+  //       updateStatus(
+  //         "An error occurred during upload: " +
+  //           (error.error || error.message || "Unknown error"),
+  //       );
+  //       progressBarContainer.style.display = "none";
+  //     });
+  // });
+
+  function displayFileTree(fileTree) {
+    console.log("Displaying file tree:", fileTree);
+    let treeContainer = document.getElementById('fileTree');
+    if (!treeContainer) {
+        console.error('File tree container not found');
+        return;
+    }
+    if (fileTree && fileTree.trim() !== '') {
+        treeContainer.innerHTML = '<pre>' + fileTree + '</pre>';
+        treeContainer.style.display = 'block';
+    } else {
+        console.warn('File tree is empty');
+        treeContainer.style.display = 'none';
+    }
+}
+
+uploadButton.addEventListener("click", function () {
+  if (uploadedFiles.length === 0) {
       updateStatus("No files selected");
       return;
-    }
+  }
 
-    let formData = new FormData();
-    uploadedFiles.forEach((file) => formData.append("files[]", file));
+  let formData = new FormData();
+  uploadedFiles.forEach((file) => formData.append("files[]", file));
 
-    updateStatus("Uploading files...");
-    progressBarContainer.style.display = "block";
-    progressBar.style.width = "0%";
+  updateStatus("Uploading files...");
+  progressBarContainer.style.display = "block";
+  progressBar.style.width = "0%";
 
-    fetch("/upload", {
+  fetch("/upload", {
       method: "POST",
       body: formData,
-    })
+  })
       .then((response) => {
-        if (!response.ok) {
-          return response.json().then((err) => {
-            throw err;
-          });
-        }
-        return response.json();
+          if (!response.ok) {
+              return response.json().then((err) => {
+                  throw err;
+              });
+          }
+          return response.json();
       })
       .then((data) => {
-        updateStatus(data.message);
-        downloadButton.style.display = "inline-block";
-        progressBarContainer.style.display = "none";
-        downloadFilename = data.filename;
+          console.log("Received data from server:", data);
+          updateStatus(data.message);
+          downloadButton.style.display = "inline-block";
+          progressBarContainer.style.display = "none";
+          downloadFilename = data.filename;
+          if (data.file_tree) {
+              displayFileTree(data.file_tree);
+          } else {
+              console.error('File tree data is missing from the response');
+              document.getElementById('fileTree').style.display = 'none';
+          }
       })
       .catch((error) => {
-        console.error("Error:", error);
-        updateStatus(
-          "An error occurred during upload: " +
-            (error.error || error.message || "Unknown error"),
-        );
-        progressBarContainer.style.display = "none";
+          console.error("Error:", error);
+          updateStatus(
+              "An error occurred during upload: " +
+              (error.error || error.message || "Unknown error")
+          );
+          progressBarContainer.style.display = "none";
       });
-  });
+});
+  
+//   uploadButton.addEventListener("click", function () {
+//     if (uploadedFiles.length === 0) {
+//         updateStatus("No files selected");
+//         return;
+//     }
+
+//     let formData = new FormData();
+//     uploadedFiles.forEach((file) => formData.append("files[]", file));
+
+//     updateStatus("Uploading files...");
+//     progressBarContainer.style.display = "block";
+//     progressBar.style.width = "0%";
+
+//     fetch("/upload", {
+//         method: "POST",
+//         body: formData,
+//     })
+//         .then((response) => {
+//             if (!response.ok) {
+//                 return response.json().then((err) => {
+//                     throw err;
+//                 });
+//             }
+//             return response.json();
+//         })
+//         .then((data) => {
+//           console.log("Received data from server:", data);
+//           updateStatus(data.message);
+//           downloadButton.style.display = "inline-block";
+//           progressBarContainer.style.display = "none";
+//           downloadFilename = data.filename;
+//           if (data.file_tree) {
+//               displayFileTree(data.file_tree);
+//           } else {
+//               console.error('File tree data is missing from the response');
+//               document.getElementById('fileTree').style.display = 'none';
+//           }
+//       })      
+//         .catch((error) => {
+//             console.error("Error:", error);
+//             updateStatus(
+//                 "An error occurred during upload: " +
+//                 (error.error || error.message || "Unknown error")
+//             );
+//             progressBarContainer.style.display = "none";
+//         });
+// });
 
   downloadButton.addEventListener("click", function () {
     window.location.href = `/download/${downloadFilename}`;

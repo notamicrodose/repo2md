@@ -1,92 +1,192 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Roboto", sans-serif;
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    background-color: #f0f0f0;
+    background-color: #f7f8fc;
     color: #333;
 }
 
 .container {
     width: 80%;
-    max-width: 800px;
-    margin: 2rem auto;
+    max-width: 900px;
+    margin: 3rem auto;
     padding: 2rem;
     background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    animation: fadeIn 0.5s ease;
 }
 
 h1 {
     text-align: center;
-    color: #2c3e50;
-    margin-bottom: 4rem;
+    color: #34495e;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
 }
 
-#drop-area {
-    border: 2px dashed #3498db;
-    border-radius: 8px;
-    padding: 2rem;
+.drop-area {
+    border: 2px dashed #2980b9;
+    border-radius: 12px;
+    padding: 2.5rem;
     text-align: center;
     margin-bottom: 2rem;
-    transition: all 0.3s ease;
+    transition:
+        background-color 0.3s ease,
+        border-color 0.3s ease;
 }
 
-#drop-area.highlight {
-    background-color: #ecf0f1;
+.drop-area:hover {
+    background-color: #ecf5fc;
+    border-color: #3498db;
+}
+
+.drop-area.highlight {
+    background-color: #d5eaf7;
 }
 
 .button {
     display: inline-block;
-    padding: 10px 20px;
-    background-color: #3498db;
-    color: white;
-    cursor: pointer;
-    border-radius: 4px;
-    border: none;
+    padding: 12px 24px;
     font-size: 1rem;
-    transition: background-color 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    transition:
+        background-color 0.3s ease,
+        transform 0.3s ease;
 }
 
-.button:hover {
+.button.primary {
+    background-color: #3498db;
+    color: #fff;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+}
+
+.button.primary:hover {
     background-color: #2980b9;
+}
+
+.button.secondary {
+    background-color: #2ecc71;
+    color: #fff;
+}
+
+.button.secondary:hover {
+    background-color: #27ae60;
+}
+
+.button:active {
+    transform: scale(0.98);
 }
 
 #fileElem {
     display: none;
 }
 
-#gallery {
+.gallery {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-#gallery div {
+.gallery div {
     background-color: #ecf0f1;
-    padding: 5px 10px;
-    border-radius: 4px;
+    padding: 8px 12px;
+    border-radius: 6px;
     font-size: 0.9rem;
 }
 
-#status {
-    margin-top: 1rem;
+.status {
+    margin-top: 1.5rem;
     font-style: italic;
     text-align: center;
 }
 
-#progress-bar-container {
+.progress-bar-container {
     width: 100%;
     background-color: #ecf0f1;
-    border-radius: 4px;
-    margin-top: 1rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
     overflow: hidden;
 }
 
-#progress-bar {
-    height: 20px;
+.progress-bar {
+    height: 24px;
     background-color: #2ecc71;
     width: 0%;
     transition: width 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.gallery div {
+    position: relative;
+    background-color: #ecf0f1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.gallery div .remove-icon {
+    cursor: pointer;
+    margin-left: 10px;
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.gallery div .remove-icon:hover {
+    color: #c0392b;
+}
+
+.file-count {
+    /* position: absolute; */
+    align-items: center;
+    text-align: center;
+}
+
+#centerdiv {
+    display: flex;
+    justify-content: center;
+}
+
+
+#fileTree {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none; /* We'll show it via JavaScript when content is added */
+}
+
+#fileTree pre {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
 }
