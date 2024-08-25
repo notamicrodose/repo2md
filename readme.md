@@ -1,6 +1,10 @@
 # repo2md
 
-repo2md is a Flask-based web app that allows users to upload github repos (folders) and combine them into a single Markdown file to make it easier to share code with LLMs. Its basic, but it does the job. Contributions are welcome!
+repo2md is a web app built with python (flask), html, css and vanilla js that allows users to upload github repos (folders) and combine them into a single Markdown file to make it easier to share code with LLMs. 
+
+Its simple, but it does the job. 
+
+Contributions are welcome!
 
 ## Features
 
