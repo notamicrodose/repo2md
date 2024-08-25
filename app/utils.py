@@ -64,12 +64,14 @@ def process_file(file_path, relative_path):
 
     language = get_language_from_extension(file_path)
     
+    # Escape hashtags at the beginning of lines in all content
+    escaped_content = re.sub(r'(^|\n)#', r'\1\\#', content)
+    
     if language == 'markdown':
-        # Escape hashtags only at the beginning of lines in Markdown content
-        escaped_content = re.sub(r'(^|\n)#', r'\1\\#', content)
         return f"# {relative_path}\n\n<markdown>\n{escaped_content}\n</markdown>\n\n"
     else:
-        return f"# {relative_path}\n\n```{language}\n{content}\n```\n\n"
+        return f"# {relative_path}\n\n```{language}\n{escaped_content}\n```\n\n"
+
 
 def combine_files(directory_path):
     repo_name = os.path.basename(directory_path)
