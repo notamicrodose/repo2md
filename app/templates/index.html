@@ -8,11 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
 </head>
-<body>
+<body> 
     <header class="header">
         <div class="container">
             <h1 class="header-title">repo2md</h1>
-        </div>
+        </div> 
     </header> 
     <main class="main">
         <div class="container">
@@ -26,15 +26,16 @@
                                     <polyline points="17 8 12 3 7 8"></polyline>
                                     <line x1="12" y1="3" x2="12" y2="15"></line>
                                 </svg>
-                                <p class="upload-text">Drag and drop your repository folder here</p>
+                                <p class="upload-text">Drop your folder here</p>
                                 <p class="upload-subtext">or</p>
                                 <label for="fileElem" class="btn btn-primary">Select Repository</label>
                                 <input type="file" id="fileElem" multiple webkitdirectory directory hidden />
                             </div>
+                            <h4 class="gallery-heading">Files in repo</h4>
                             <div id="gallery" class="file-gallery"></div>
                             <div class="file-count" id="fileCount">0 files selected</div>
                             <div class="action-buttons">
-                                <button id="uploadBtn" class="btn btn-primary">Upload Files</button>
+                                <button id="uploadBtn" class="btn btn-primary">Combine</button>
                                 <button id="downloadBtn" class="btn btn-secondary" style="display: none">Download Combined File</button>
                             </div>
                             <div id="status" class="status"></div>

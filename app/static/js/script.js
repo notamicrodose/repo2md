@@ -88,6 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
     dropArea.classList.add("highlight");
   }
 
+  
+
   function unhighlight() {
     dropArea.classList.remove("highlight");
   }

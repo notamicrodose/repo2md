@@ -1,16 +1,20 @@
 :root {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
-    --secondary-color: #10b981;
-    --secondary-hover: #059669;
-    --background-color: #f3f4f6;
-    --card-background: #ffffff;
-    --text-color: #111827;
-    --text-muted: #6b7280;
-    --border-color: #e5e7eb;
-    --success-color: #34d399;
-    --error-color: #f87171;
+    --primary-color: #6A66FF; /* Vivid Blue */
+    --primary-hover: #7270FF; /* Slightly darker blue for hover */
+    --secondary-color: #2fd19a; /* Slightly muted green */
+    --secondary-hover: #27b585; /* Darker green for hover */
+    --background-color: #101018; /* A slightly lighter dark gray */
+    --background-gradient: linear-gradient(135deg, #121212, #333333); /* Subtle dark gradient */
+    --card-background: #181825; /* Dark gray for cards */
+    --card-header-background: #262626; /* Darker gray for card headers */
+    --text-color: #e0e0e0; /* Lighter gray for text */
+    --text-muted: #8c8c8c; /* Keep as is */
+    --border-color: #303045; /* Darker gray for borders */
+    --success-color: #28c76f; /* Bright green */
+    --error-color: #ff4b4b; /* More vivid coral red */
 }
+
+
 
 * {
     margin: 0;
@@ -34,14 +38,14 @@ body {
 
 .header {
     background-color: var(--card-background);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
     padding: 1rem 0;
 }
 
 .header-title {
     font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--primary-color);
+    font-weight: 100;
+    color: var(--text-color);
 }
 
 .main {
@@ -51,28 +55,34 @@ body {
 .two-column-layout {
     display: flex;
     gap: 2rem;
-    /* height: calc(100vh - 100px);  */
 }
+
+.left-column {
+    flex: 0 0 400px!important;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+.right-column {
+    flex: 0 0 65%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
 
 .column {
     flex: 1;
     overflow: hidden;
 }
-
-.left-column {
-    flex: 0 0 38%;
-}
-
-.right-column {
-    flex: 0 0 62%;
-    display: flex;
-    flex-direction: column;
-}
-
 .card {
     height: 100%;
     display: flex;
     flex-direction: column;
+    background-color: var(--card-background);
+    border-radius: 0.7rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .card-body {
@@ -80,54 +90,56 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: white;
-    border-radius: 0.7rem;
     padding: 1.5rem;
-}
+    background: #181825;
+    border-radius: 0.875rem;
+  }
 
 .card-header {
     padding: 1rem 1.5rem;
-    border-radius: 0.3rem 0.3rem 0 0;
-    /* border-bottom: 1px solid var(--border-color); */
-    background-color: #f9fafb;
+    border-radius: 0.875rem 0.875rem 0 0;
+    background-color: #212131;
 }
 
 .card-title {
     font-size: 1.25rem;
     font-weight: 600;
+    color: var(--text-color);
 }
 
 .card-body-preview {
-    background-color: white;
+    background-color: var(--card-background);
     padding: 1.5rem;
-    border-radius: 0 0 0.3rem 0.3rem;
+    border-radius: 0 0 0.875rem 0.875rem;
 }
 
 .upload-area {
-    border: 2px dashed var(--border-color);
+    border: 1px dashed var(--border-color);
     border-radius: 0.75rem;
-    padding: 2rem;
+    padding: 1rem;
     text-align: center;
     transition: all 0.3s ease;
-    background-color: #f9fafb;
-}
+    background-color: #101018;
+    color: var(--text-color);
+  }
 
 .upload-area:hover, .upload-area.highlight {
     border-color: var(--primary-color);
-    background-color: #e0f2fe;
 }
 
 .upload-icon {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 1rem;
+    width: 32px;
+    height: 32px;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
     color: var(--primary-color);
 }
 
 .upload-text {
     font-size: 1.25rem;
     font-weight: 500;
-    margin-bottom: 0.5rem;
+    /* margin-bottom: 0.5rem; */
+    color: var(--text-color);
 }
 
 .upload-subtext {
@@ -138,7 +150,7 @@ body {
 .btn {
     display: inline-block;
     padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
+    font-size: 0.775rem;
     font-weight: 500;
     text-align: center;
     text-decoration: none;
@@ -165,23 +177,38 @@ body {
     background-color: var(--secondary-hover);
 }
 
+.gallery-heading {
+    padding-top:1rem;
+    margin-bottom: 0;
+    font-size: .94rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
 .file-gallery {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-top: 1rem;
-}
+    margin-top: .5rem;
+    max-height: 200px !important;
+    overflow-y: auto;
+    background: #212131;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    border: 1px solid #303045;
+  }
 
-.file-gallery div {
-    background-color: #f3f4f6;
-    padding: 0.5rem 0.75rem;
+  .file-gallery div {
+    background-color: #101018;
+    padding: 0.4rem 0.55rem;
     border-radius: 0.375rem;
-    font-size: 0.75rem;
+    font-size: 0.69rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+    color: var(--text-color);
+  }
 
 .file-gallery .remove-icon {
     cursor: pointer;
@@ -210,7 +237,7 @@ body {
 
 .progress-container {
     margin-top: 1rem;
-    background-color: #e5e7eb;
+    background-color: var(--border-color);
     border-radius: 0.25rem;
     overflow: hidden;
 }
@@ -225,10 +252,8 @@ body {
 .preview {
     flex: 1;
     overflow-y: auto;
-    background-color: #ffffff;
-    border-radius: 0.5rem;
-    border: 1px solid var(--border-color);
-    padding: 1rem;
+    background-color: var(--card-background);
+    color: var(--text-color);
 }
 
 .file-content {
@@ -245,6 +270,7 @@ body {
     margin: 0;
     white-space: pre-wrap;
     word-break: break-all;
+    color: var(--text-color);
 }
 
 .file-section {
@@ -255,20 +281,21 @@ body {
 
 .file-header {
     font-family: 'Inter', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 400;
     color: var(--primary-color);
     margin: 0;
     padding: 0.5rem 1rem;
-    background-color: #f0f4f8;
-}
+    background-color: #181825;
+  }
 
 .file-body {
     margin: 0;
     padding: 1rem;
-    background-color: #f9fafb;
+    background-color: #101018;
     overflow-x: auto;
-}
+    color: var(--text-color);
+  }
 
 .file-body code {
     font-family: 'Courier New', Courier, monospace;
@@ -287,7 +314,8 @@ body {
 
 /* Add styles for syntax highlighting */
 .hljs {
-    background: #f9fafb;
+    background: #181818;
     padding: 1em;
     border-radius: 0.375rem;
+    color: var(--text-color);
 }
