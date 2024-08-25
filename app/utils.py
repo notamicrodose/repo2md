@@ -1,8 +1,7 @@
 import os
-import asyncio
+import logging
 from werkzeug.utils import secure_filename
 from app.config import Config
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +40,7 @@ def get_language_from_extension(filename):
     }
     return language_map.get(ext, '')
 
-async def process_file(file_path, relative_path):
+def process_file(file_path, relative_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
@@ -56,10 +55,13 @@ async def process_file(file_path, relative_path):
     language = get_language_from_extension(file_path)
     return f"# {relative_path}\n\n```{language}\n{content}\n```\n\n"
 
-async def process_directory(directory_path, base_path):
-    tasks = []
+def combine_files(directory_path):
     repo_name = os.path.basename(directory_path)
     content = f"# Repository: {repo_name}\n\n"
+
+    # Generate file tree
+    file_tree = generate_file_tree(directory_path, root_name=repo_name)
+    content += f"# File Tree\n\n```\n{file_tree}\n```\n\n"
 
     for root, dirs, files in os.walk(directory_path):
         # Remove excluded directories
@@ -70,61 +72,13 @@ async def process_directory(directory_path, base_path):
             relative_path = os.path.relpath(file_path, directory_path)
 
             if not excluded_directory(relative_path) and allowed_file(file) and not excluded_file(file):
-                tasks.append(process_file(file_path, relative_path))
+                content += process_file(file_path, relative_path)
 
-    if not tasks:
+    if not content:
         logger.warning("No files to process in the directory.")
         return f"# Repository: {repo_name}\n\nNo files were found to combine."
 
-    results = await asyncio.gather(*tasks)
-    content += ''.join(results)
     return content
-
-def async_combine_files(directory_path):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        content = loop.run_until_complete(process_directory(directory_path, directory_path))
-        return content
-    except Exception as e:
-        logger.error(f"Error in async_combine_files: {str(e)}")
-        raise
-    finally:
-        loop.close()
-
-# def generate_file_tree(directory, root_name=None):
-#     logger.info(f"Generating file tree for directory: {directory}")
-#     tree = []
-#     directory = os.path.abspath(directory)
-    
-#     if root_name is None:
-#         root_name = os.path.basename(directory)
-    
-#     tree.append(f"{root_name}/")
-    
-#     for root, dirs, files in os.walk(directory):
-#         level = root.replace(directory, '').count(os.sep)
-#         indent = '│   ' * level
-#         subindent = '│   ' * (level + 1)
-        
-#         for i, dir_name in enumerate(dirs):
-#             if dir_name.startswith('.'):
-#                 dirs.pop(i)
-#                 continue
-#             if i == len(dirs) - 1 and len(files) == 0:
-#                 tree.append(f"{indent}└── {dir_name}/")
-#             else:
-#                 tree.append(f"{indent}├── {dir_name}/")
-        
-#         for i, file in enumerate(files):
-#             if i == len(files) - 1:
-#                 tree.append(f"{subindent}└── {file}")
-#             else:
-#                 tree.append(f"{subindent}├── {file}")
-    
-#     result = '\n'.join(tree)
-#     logger.info(f"Generated file tree:\n{result}")
-#     return result
 
 def generate_file_tree(directory, root_name=None):
     logger.info(f"Generating file tree for directory: {directory}")
@@ -154,3 +108,218 @@ def generate_file_tree(directory, root_name=None):
     result = '\n'.join(tree)
     logger.info(f"Generated file tree:\n{result}")
     return result
+
+
+# import os
+# import asyncio
+# from werkzeug.utils import secure_filename
+# from app.config import Config
+# import logging
+
+# logger = logging.getLogger(__name__)
+
+# def combine_files(directory_path):
+#     tasks = []
+#     repo_name = os.path.basename(directory_path)
+#     content = f"# Repository: {repo_name}\n\n"
+
+#     # Generate file tree
+#     file_tree = generate_file_tree(directory_path, root_name=repo_name)
+#     content += f"# File Tree\n\n```\n{file_tree}\n```\n\n"
+
+#     for root, dirs, files in os.walk(directory_path):
+#         # Remove excluded directories
+#         dirs[:] = [d for d in dirs if not excluded_directory(os.path.join(root, d))]
+
+#         for file in files:
+#             file_path = os.path.join(root, file)
+#             relative_path = os.path.relpath(file_path, directory_path)
+
+#             if not excluded_directory(relative_path) and allowed_file(file) and not excluded_file(file):
+#                 content += process_file(file_path, relative_path)
+
+#     if not content:
+#         logger.warning("No files to process in the directory.")
+#         return f"# Repository: {repo_name}\n\nNo files were found to combine."
+
+#     return content
+
+# def process_file(file_path, relative_path):
+#     try:
+#         with open(file_path, 'r', encoding='utf-8') as file:
+#             content = file.read()
+#     except UnicodeDecodeError:
+#         logger.warning(f"UTF-8 decoding failed for {file_path}. Trying ISO-8859-1.")
+#         with open(file_path, 'r', encoding='iso-8859-1') as file:
+#             content = file.read()
+#     except Exception as e:
+#         logger.error(f"Error processing file {file_path}: {str(e)}")
+#         content = f"Error processing file: {str(e)}"
+
+#     language = get_language_from_extension(file_path)
+#     return f"# {relative_path}\n\n```{language}\n{content}\n```\n\n"
+
+# def allowed_file(filename):
+#     return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
+
+# def excluded_file(filename):
+#     return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.EXCLUDED_EXTENSIONS
+
+# def excluded_directory(path):
+#     return any(excluded in path.split(os.path.sep) for excluded in Config.EXCLUDED_DIRECTORIES)
+
+# def get_language_from_extension(filename):
+#     ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+#     language_map = {
+#         'py': 'python',
+#         'js': 'javascript',
+#         'jsx': 'javascript',
+#         'ts': 'typescript',
+#         'tsx': 'typescript',
+#         'html': 'html',
+#         'css': 'css',
+#         'java': 'java',
+#         'cpp': 'cpp',
+#         'h': 'cpp',
+#         'c': 'c',
+#         'go': 'go',
+#         'rs': 'rust',
+#         'rb': 'ruby',
+#         'php': 'php',
+#         'scala': 'scala',
+#         'kt': 'kotlin',
+#         'swift': 'swift',
+#         'r': 'r',
+#         'sql': 'sql'
+#     }
+#     return language_map.get(ext, '')
+
+# async def process_file(file_path, relative_path):
+#     try:
+#         with open(file_path, 'r', encoding='utf-8') as file:
+#             content = file.read()
+#     except UnicodeDecodeError:
+#         logger.warning(f"UTF-8 decoding failed for {file_path}. Trying ISO-8859-1.")
+#         with open(file_path, 'r', encoding='iso-8859-1') as file:
+#             content = file.read()
+#     except Exception as e:
+#         logger.error(f"Error processing file {file_path}: {str(e)}")
+#         content = f"Error processing file: {str(e)}"
+
+#     language = get_language_from_extension(file_path)
+#     return f"# {relative_path}\n\n```{language}\n{content}\n```\n\n"
+
+# async def process_directory(directory_path, base_path):
+#     tasks = []
+#     repo_name = os.path.basename(directory_path)
+#     content = f"# Repository: {repo_name}\n\n"
+
+#     for root, dirs, files in os.walk(directory_path):
+#         # Remove excluded directories
+#         dirs[:] = [d for d in dirs if not excluded_directory(os.path.join(root, d))]
+
+#         for file in files:
+#             file_path = os.path.join(root, file)
+#             relative_path = os.path.relpath(file_path, directory_path)
+
+#             if not excluded_directory(relative_path) and allowed_file(file) and not excluded_file(file):
+#                 tasks.append(process_file(file_path, relative_path))
+
+#     if not tasks:
+#         logger.warning("No files to process in the directory.")
+#         return f"# Repository: {repo_name}\n\nNo files were found to combine."
+
+#     results = await asyncio.gather(*tasks)
+#     content += ''.join(results)
+#     return content
+
+# # async def async_combine_files(directory_path):
+# #     tasks = []
+# #     repo_name = os.path.basename(directory_path)
+# #     content = f"# Repository: {repo_name}\n\n"
+
+# #     # Generate file tree
+# #     file_tree = generate_file_tree(directory_path, root_name=repo_name)
+# #     content += f"# File Tree\n\n```\n{file_tree}\n```\n\n"
+
+# #     for root, dirs, files in os.walk(directory_path):
+# #         # Remove excluded directories
+# #         dirs[:] = [d for d in dirs if not excluded_directory(os.path.join(root, d))]
+
+# #         for file in files:
+# #             file_path = os.path.join(root, file)
+# #             relative_path = os.path.relpath(file_path, directory_path)
+
+# #             if not excluded_directory(relative_path) and allowed_file(file) and not excluded_file(file):
+# #                 tasks.append(process_file(file_path, relative_path))
+
+# #     if not tasks:
+# #         logger.warning("No files to process in the directory.")
+# #         return f"# Repository: {repo_name}\n\nNo files were found to combine."
+
+# #     results = await asyncio.gather(*tasks)
+# #     content += ''.join(results)
+# #     return content
+
+# # def generate_file_tree(directory, root_name=None):
+# #     logger.info(f"Generating file tree for directory: {directory}")
+# #     tree = []
+# #     directory = os.path.abspath(directory)
+    
+# #     if root_name is None:
+# #         root_name = os.path.basename(directory)
+    
+# #     tree.append(f"{root_name}/")
+    
+# #     for root, dirs, files in os.walk(directory):
+# #         level = root.replace(directory, '').count(os.sep)
+# #         indent = '│   ' * level
+# #         subindent = '│   ' * (level + 1)
+        
+# #         for i, dir_name in enumerate(dirs):
+# #             if dir_name.startswith('.'):
+# #                 dirs.pop(i)
+# #                 continue
+# #             if i == len(dirs) - 1 and len(files) == 0:
+# #                 tree.append(f"{indent}└── {dir_name}/")
+# #             else:
+# #                 tree.append(f"{indent}├── {dir_name}/")
+        
+# #         for i, file in enumerate(files):
+# #             if i == len(files) - 1:
+# #                 tree.append(f"{subindent}└── {file}")
+# #             else:
+# #                 tree.append(f"{subindent}├── {file}")
+    
+# #     result = '\n'.join(tree)
+# #     logger.info(f"Generated file tree:\n{result}")
+# #     return result
+
+# def generate_file_tree(directory, root_name=None):
+#     logger.info(f"Generating file tree for directory: {directory}")
+#     tree = []
+#     directory = os.path.abspath(directory)
+    
+#     if root_name is None:
+#         root_name = os.path.basename(directory)
+    
+#     def add_to_tree(path, prefix=""):
+#         nonlocal tree
+#         entries = sorted(os.scandir(path), key=lambda e: (not e.is_dir(), e.name.lower()))
+        
+#         for i, entry in enumerate(entries):
+#             is_last = (i == len(entries) - 1)
+#             node = "└── " if is_last else "├── "
+            
+#             if entry.is_dir() and not entry.name.startswith('.'):
+#                 tree.append(f"{prefix}{node}{entry.name}/")
+#                 add_to_tree(entry.path, prefix + ("    " if is_last else "│   "))
+#             elif entry.is_file():
+#                 tree.append(f"{prefix}{node}{entry.name}")
+    
+#     tree.append(f"{root_name}/")
+#     add_to_tree(directory)
+    
+#     result = '\n'.join(tree)
+#     logger.info(f"Generated file tree:\n{result}")
+#     return result

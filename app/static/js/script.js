@@ -112,25 +112,318 @@ document.addEventListener("DOMContentLoaded", function () {
     updateGallery();
   }
 
-  // function updateGallery() {
-  //   let gallery = document.getElementById("gallery");
-  //   gallery.innerHTML = "";
-  //   uploadedFiles.forEach((file, index) => {
-  //     let div = document.createElement("div");
-  //     div.textContent = `${file.webkitRelativePath || file.name} (${formatFileSize(file.size)})`;
+  uploadButton.addEventListener("click", function () {
+    if (uploadedFiles.length === 0) {
+        updateStatus("No files selected");
+        return;
+    }
+  
+    let formData = new FormData();
+    uploadedFiles.forEach((file) => formData.append("files[]", file));
+  
+    updateStatus("Uploading files...");
+    progressBarContainer.style.display = "block";
+    progressBar.style.width = "0%";
+  
+    fetch("/upload", {
+        method: "POST",
+        body: formData,
+    })
+        .then((response) => {
+            if (!response.ok) {
+                return response.json().then((err) => {
+                    throw err;
+                });
+            }
+            return response.json();
+        }) 
+        .then((data) => {
+            console.log("Received data from server:", data);
+            updateStatus(data.message);
+            downloadButton.style.display = "inline-block";
+            progressBarContainer.style.display = "none";
+            downloadFilename = data.filename;
+            if (data.file_tree) {
+                displayFileTree(data.file_tree);
+            } else {
+                console.error('File tree data is missing from the response');
+                document.getElementById('fileTree').style.display = 'none';
+            }
+            if (data.preview_content) {
+                displayPreview(data.preview_content);
+            } else {
+                console.error('Preview content is missing from the response');
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            updateStatus(
+                "An error occurred during upload: " +
+                (error.error || error.message || "Unknown error")
+            );
+            progressBarContainer.style.display = "none";
+        });
+  });
+  
+  // Initialize highlight.js 
+  function initializeHighlightJS() {
+    if (typeof hljs !== 'undefined') {
+      hljs.highlightAll();
+    } else {
+      console.warn('highlight.js is not loaded. Syntax highlighting may not work.');
+    }
+  }
 
-  //     // Create remove icon
-  //     let removeIcon = document.createElement("span");
-  //     removeIcon.textContent = "X";
-  //     removeIcon.classList.add("remove-icon");
-  //     removeIcon.addEventListener("click", function () {
-  //       removeFile(index);
+  // Call initializeHighlightJS after a short delay to ensure scripts have loaded
+  setTimeout(initializeHighlightJS, 100);
+
+  function applyHighlighting() {
+    if (typeof hljs !== 'undefined') {
+      document.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+      });
+    }
+  }
+
+  // function displayPreview(content) {
+  //   const previewElement = document.getElementById('preview');
+  //   if (previewElement) {
+  //     // Create file content element
+  //     const fileContentElement = document.createElement('div');
+  //     fileContentElement.className = 'file-content';
+      
+  //     // Split the content into sections
+  //     const sections = content.split('\n# ');
+
+  //     sections.forEach((section, index) => {
+  //       if (index === 0 && !section.startsWith('# ')) {
+  //         // This is likely the file tree, so we'll wrap it in a code block
+  //         const fileTreeElement = document.createElement('div');
+  //         fileTreeElement.className = 'file-tree';
+  //         const pre = document.createElement('pre');
+  //         const code = document.createElement('code');
+  //         code.className = 'language-plaintext';
+  //         code.textContent = section.trim();
+  //         pre.appendChild(code);
+  //         fileTreeElement.appendChild(pre);
+  //         fileContentElement.appendChild(fileTreeElement);
+  //       } else {
+  //         // This is a file content section
+  //         const sectionElement = document.createElement('div');
+  //         sectionElement.className = 'file-section';
+          
+  //         const lines = section.split('\n');
+  //         const header = lines.shift(); // Remove and store the first line as header
+          
+  //         const headerElement = document.createElement('h3');
+  //         headerElement.className = 'file-header';
+  //         headerElement.textContent = (index === 0 ? '# ' : '') + header.trim();
+          
+  //         const bodyElement = document.createElement('pre');
+  //         bodyElement.className = 'file-body';
+  //         const codeElement = document.createElement('code');
+  //         codeElement.textContent = lines.join('\n').trim();
+  //         bodyElement.appendChild(codeElement);
+          
+  //         sectionElement.appendChild(headerElement);
+  //         sectionElement.appendChild(bodyElement);
+  //         fileContentElement.appendChild(sectionElement);
+  //       }
   //     });
+      
+  //     // Clear previous content and add new elements
+  //     previewElement.innerHTML = '';
+  //     previewElement.appendChild(fileContentElement);
 
-  //     div.appendChild(removeIcon);
-  //     gallery.appendChild(div);
-  //   });
+  //     // Apply syntax highlighting
+  //     document.querySelectorAll('pre code').forEach((block) => {
+  //       hljs.highlightElement(block);
+  //     });
+  //   } else {
+  //     console.error('Preview element not found');
+  //   }
   // }
+
+//   function displayPreview(content) {
+//     const previewElement = document.getElementById('preview');
+//     if (previewElement) {
+//         // Create file content element
+//         const fileContentElement = document.createElement('div');
+//         fileContentElement.className = 'file-content';
+
+//         // Split the content into sections
+//         const sections = content.split('\n# ');
+
+//         sections.forEach((section, index) => {
+//             if (index === 0) {
+//                 // This is the repository name section
+//                 const repoNameElement = document.createElement('h2');
+//                 repoNameElement.textContent = section.trim();
+//                 fileContentElement.appendChild(repoNameElement);
+//             } else if (section.startsWith('File Tree')) {
+//                 // This is the file tree section
+//                 const fileTreeElement = document.createElement('div');
+//                 fileTreeElement.className = 'file-tree';
+//                 const pre = document.createElement('pre');
+//                 const code = document.createElement('code');
+//                 code.className = 'language-plaintext';
+//                 code.textContent = section.split('```\n')[1].split('\n```')[0].trim();
+//                 pre.appendChild(code);
+//                 fileTreeElement.appendChild(pre);
+//                 fileContentElement.appendChild(fileTreeElement);
+//             } else {
+//                 // This is a file content section
+//                 const sectionElement = document.createElement('div');
+//                 sectionElement.className = 'file-section';
+//                 const lines = section.split('\n');
+//                 const header = lines.shift(); // Remove and store the first line as header
+//                 const headerElement = document.createElement('h3');
+//                 headerElement.className = 'file-header';
+//                 headerElement.textContent = (index === 0 ? '# ' : '') + header.trim();
+//                 const bodyElement = document.createElement('pre');
+//                 bodyElement.className = 'file-body';
+//                 const codeElement = document.createElement('code');
+//                 codeElement.textContent = lines.join('\n').trim();
+//                 bodyElement.appendChild(codeElement);
+//                 sectionElement.appendChild(headerElement);
+//                 sectionElement.appendChild(bodyElement);
+//                 fileContentElement.appendChild(sectionElement);
+//             }
+//         });
+
+//         // Clear previous content and add new elements
+//         previewElement.innerHTML = '';
+//         previewElement.appendChild(fileContentElement);
+
+//         // Apply syntax highlighting
+//         document.querySelectorAll('pre code').forEach((block) => {
+//             hljs.highlightElement(block);
+//         });
+//     } else {
+//         console.error('Preview element not found');
+//     }
+// }
+
+// function displayPreview(content) {
+//   const previewElement = document.getElementById('preview');
+//   if (previewElement) {
+//       // Create file content element
+//       const fileContentElement = document.createElement('div');
+//       fileContentElement.className = 'file-content';
+
+//       // Split the content into sections
+//       const sections = content.split('\n# ');
+
+//       sections.forEach((section, index) => {
+//           if (index === 0) {
+//               // This is the repository name section
+//               const repoNameElement = document.createElement('h2');
+//               repoNameElement.textContent = section.trim();
+//               fileContentElement.appendChild(repoNameElement);
+//           } else if (section.startsWith('File Tree')) {
+//               // This is the file tree section
+//               const fileTreeElement = document.createElement('div');
+//               fileTreeElement.className = 'file-tree';
+//               const pre = document.createElement('pre');
+//               const code = document.createElement('code');
+//               code.className = 'language-plaintext';
+//               code.textContent = section.split('```\n')[1].split('\n```')[0].trim();
+//               pre.appendChild(code);
+//               fileTreeElement.appendChild(pre);
+//               fileContentElement.appendChild(fileTreeElement);
+//           } else {
+//               // This is a file content section
+//               const sectionElement = document.createElement('div');
+//               sectionElement.className = 'file-section';
+//               const lines = section.split('\n');
+//               const header = lines.shift(); // Remove and store the first line as header
+//               const headerElement = document.createElement('h3');
+//               headerElement.className = 'file-header';
+//               headerElement.textContent = header.trim();
+//               const bodyElement = document.createElement('pre');
+//               bodyElement.className = 'file-body';
+//               const codeElement = document.createElement('code');
+//               codeElement.textContent = lines.join('\n').trim();
+//               bodyElement.appendChild(codeElement);
+//               sectionElement.appendChild(headerElement);
+//               sectionElement.appendChild(bodyElement);
+//               fileContentElement.appendChild(sectionElement);
+//           }
+//       });
+
+//       // Clear previous content and add new elements
+//       previewElement.innerHTML = '';
+//       previewElement.appendChild(fileContentElement);
+
+//       // Apply syntax highlighting
+//       document.querySelectorAll('pre code').forEach((block) => {
+//           hljs.highlightElement(block);
+//       });
+//   } else {
+//       console.error('Preview element not found');
+//   }
+// }
+
+function displayPreview(content) {
+  const previewElement = document.getElementById('preview');
+  if (previewElement) {
+      // Create file content element
+      const fileContentElement = document.createElement('div');
+      fileContentElement.className = 'file-content';
+
+      // Split the content into sections
+      const sections = content.split('\n# ');
+
+      sections.forEach((section, index) => {
+          if (index === 0) {
+              // This is the repository name section
+              const repoNameElement = document.createElement('h2');
+              repoNameElement.textContent = section.trim();
+              fileContentElement.appendChild(repoNameElement);
+          } else if (section.startsWith('File Tree')) {
+              // This is the file tree section
+              const fileTreeElement = document.createElement('div');
+              fileTreeElement.className = 'file-tree';
+              const pre = document.createElement('pre');
+              const code = document.createElement('code');
+              code.className = 'language-plaintext';
+              code.textContent = section.split('```\n')[1].split('\n```')[0].trim();
+              pre.appendChild(code);
+              fileTreeElement.appendChild(pre);
+              fileContentElement.appendChild(fileTreeElement);
+          } else {
+              // This is a file content section
+              const sectionElement = document.createElement('div');
+              sectionElement.className = 'file-section';
+              const lines = section.split('\n');
+              const header = lines.shift(); // Remove and store the first line as header
+              const headerElement = document.createElement('h3');
+              headerElement.className = 'file-header';
+              headerElement.textContent = header.trim();
+              const bodyElement = document.createElement('pre');
+              bodyElement.className = 'file-body';
+              const codeElement = document.createElement('code');
+              codeElement.textContent = lines.join('\n').trim();
+              bodyElement.appendChild(codeElement);
+              sectionElement.appendChild(headerElement);
+              sectionElement.appendChild(bodyElement);
+              fileContentElement.appendChild(sectionElement);
+          }
+      });
+
+      // Clear previous content and add new elements
+      previewElement.innerHTML = '';
+      previewElement.appendChild(fileContentElement);
+
+      // Apply syntax highlighting
+      document.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightElement(block);
+      });
+  } else {
+      console.error('Preview element not found');
+  }
+}
+
   function updateGallery() {
     let gallery = document.getElementById("gallery");
     gallery.innerHTML = "";
@@ -190,55 +483,6 @@ document.addEventListener("DOMContentLoaded", function () {
     handleFiles({ target: { files: files } });
   }
 
-  // uploadButton.addEventListener("click", function () {
-  //   if (uploadedFiles.length === 0) {
-  //     updateStatus("No files selected");
-  //     return;
-  //   }
-
-  //   let formData = new FormData();
-  //   uploadedFiles.forEach((file) => formData.append("files[]", file));
-
-  //   updateStatus("Uploading files...");
-  //   progressBarContainer.style.display = "block";
-  //   progressBar.style.width = "0%";
-
-  //   function displayFileTree(fileTree) {
-  //     let treeContainer = document.getElementById('fileTree');
-  //     treeContainer.innerHTML = '<pre>' + fileTree + '</pre>';
-  //     treeContainer.style.display = 'block';
-  // }
-    
-
-  //   fetch("/upload", {
-  //     method: "POST",
-  //     body: formData,
-  //   })
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         return response.json().then((err) => {
-  //           throw err;
-  //         });
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((data) => {
-  //       updateStatus(data.message);
-  //       downloadButton.style.display = "inline-block";
-  //       progressBarContainer.style.display = "none";
-  //       downloadFilename = data.filename;
-  //       displayFileTree(data.file_tree);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error:", error);
-  //       updateStatus(
-  //         "An error occurred during upload: " +
-  //           (error.error || error.message || "Unknown error"),
-  //       );
-  //       progressBarContainer.style.display = "none";
-  //     });
-  // });
-
   function displayFileTree(fileTree) {
     console.log("Displaying file tree:", fileTree);
     let treeContainer = document.getElementById('fileTree');
@@ -254,102 +498,6 @@ document.addEventListener("DOMContentLoaded", function () {
         treeContainer.style.display = 'none';
     }
 }
-
-uploadButton.addEventListener("click", function () {
-  if (uploadedFiles.length === 0) {
-      updateStatus("No files selected");
-      return;
-  }
-
-  let formData = new FormData();
-  uploadedFiles.forEach((file) => formData.append("files[]", file));
-
-  updateStatus("Uploading files...");
-  progressBarContainer.style.display = "block";
-  progressBar.style.width = "0%";
-
-  fetch("/upload", {
-      method: "POST",
-      body: formData,
-  })
-      .then((response) => {
-          if (!response.ok) {
-              return response.json().then((err) => {
-                  throw err;
-              });
-          }
-          return response.json();
-      })
-      .then((data) => {
-          console.log("Received data from server:", data);
-          updateStatus(data.message);
-          downloadButton.style.display = "inline-block";
-          progressBarContainer.style.display = "none";
-          downloadFilename = data.filename;
-          if (data.file_tree) {
-              displayFileTree(data.file_tree);
-          } else {
-              console.error('File tree data is missing from the response');
-              document.getElementById('fileTree').style.display = 'none';
-          }
-      })
-      .catch((error) => {
-          console.error("Error:", error);
-          updateStatus(
-              "An error occurred during upload: " +
-              (error.error || error.message || "Unknown error")
-          );
-          progressBarContainer.style.display = "none";
-      });
-});
-  
-//   uploadButton.addEventListener("click", function () {
-//     if (uploadedFiles.length === 0) {
-//         updateStatus("No files selected");
-//         return;
-//     }
-
-//     let formData = new FormData();
-//     uploadedFiles.forEach((file) => formData.append("files[]", file));
-
-//     updateStatus("Uploading files...");
-//     progressBarContainer.style.display = "block";
-//     progressBar.style.width = "0%";
-
-//     fetch("/upload", {
-//         method: "POST",
-//         body: formData,
-//     })
-//         .then((response) => {
-//             if (!response.ok) {
-//                 return response.json().then((err) => {
-//                     throw err;
-//                 });
-//             }
-//             return response.json();
-//         })
-//         .then((data) => {
-//           console.log("Received data from server:", data);
-//           updateStatus(data.message);
-//           downloadButton.style.display = "inline-block";
-//           progressBarContainer.style.display = "none";
-//           downloadFilename = data.filename;
-//           if (data.file_tree) {
-//               displayFileTree(data.file_tree);
-//           } else {
-//               console.error('File tree data is missing from the response');
-//               document.getElementById('fileTree').style.display = 'none';
-//           }
-//       })      
-//         .catch((error) => {
-//             console.error("Error:", error);
-//             updateStatus(
-//                 "An error occurred during upload: " +
-//                 (error.error || error.message || "Unknown error")
-//             );
-//             progressBarContainer.style.display = "none";
-//         });
-// });
 
   downloadButton.addEventListener("click", function () {
     window.location.href = `/download/${downloadFilename}`;
