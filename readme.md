@@ -11,14 +11,18 @@ Contributions are welcome!
 - Drag and drop file uploader
 - Deselect unwanted file before downloading
 - Combines various file types into a single Markdown file via simple UI
+- Display a preview of the generated markdown file
+- Syntax highlighting in preview
 - Download the combined md file
 - Excludes certain file types from the combined file (node_modules, .git, etc.)
-- Creates a file tree of the repo for the LLM to know the structure of the project
+- Creates a file tree of the repo
 
 ## Roadmap
 
-- Display a preview of the generated markdown file
 - Add ability to deselect specific folders from the output
+- Integration with GitHub
+- API access
+- Refactoring
 
 ## Installation
 
