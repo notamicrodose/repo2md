@@ -187,11 +187,65 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-function displayPreview(content) {
-  const previewElement = document.getElementById('preview');
-  if (previewElement) {
-    const fileContentElement = document.createElement('div');
-    fileContentElement.className = 'file-content';
+  uploadButton.addEventListener("click", function () {
+    if (uploadedFiles.length === 0) {
+        updateStatus("No files selected");
+        return;
+    }
+
+    let formData = new FormData();
+    uploadedFiles.forEach((file) => formData.append("files[]", file));
+
+    updateStatus("Uploading files...");
+    progressBarContainer.style.display = "block";
+    progressBar.style.width = "0%";
+
+    fetch("/upload", {
+        method: "POST",
+        body: formData,
+    })
+        .then((response) => {
+            if (!response.ok) {
+                return response.json().then((err) => {
+                    throw err;
+                });
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log("Received data from server:", data);
+            updateStatus(data.message);
+            downloadButton.style.display = "inline-block";
+            progressBarContainer.style.display = "none";
+            downloadFilename = data.filename;
+            if (data.file_tree) {
+                displayFileTree(data.file_tree);
+            } else {
+                console.error('File tree data is missing from the response');
+                document.getElementById('fileTree').style.display = 'none';
+            }
+            if (data.preview_content) {
+                displayPreview(data.preview_content, data.repo_name);  // Pass repo_name to displayPreview
+            } else {
+                console.error('Preview content is missing from the response');
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            updateStatus(
+                "An error occurred during upload: " +
+                (error.error || error.message || "Unknown error")
+            );
+            progressBarContainer.style.display = "none";
+        });
+});
+
+// Update the displayPreview function to accept repo_name as a parameter
+function displayPreview(content, repo_name) {
+    const previewElement = document.getElementById('preview');
+    if (previewElement) {
+        const fileContentElement = document.createElement('div');
+        fileContentElement.className = 'file-content';
 
     const sections = content.split('\n# ');
 

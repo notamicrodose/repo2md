@@ -72,9 +72,9 @@ def process_file(file_path, relative_path):
     else:
         return f"# {relative_path}\n\n```{language}\n{escaped_content}\n```\n\n"
 
-
-def combine_files(directory_path):
-    repo_name = os.path.basename(directory_path)
+def combine_files(directory_path, repo_name=None):
+    if repo_name is None:
+        repo_name = os.path.basename(directory_path)
     content = f"# Repository: {repo_name}\n\n"
 
     # Generate file tree
@@ -113,7 +113,7 @@ def generate_file_tree(directory, root_name=None):
         for i, entry in enumerate(entries):
             is_last = (i == len(entries) - 1)
             node = "└── " if is_last else "├── "
-            
+
             if entry.is_dir() and not entry.name.startswith('.'):
                 tree.append(f"{prefix}{node}{entry.name}/")
                 add_to_tree(entry.path, prefix + ("    " if is_last else "│   "))

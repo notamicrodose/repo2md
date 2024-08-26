@@ -24,14 +24,16 @@ def upload_files():
 
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Find the common prefix (repository root)
-            file_paths = [file.filename for file in files]
-            common_prefix = os.path.commonprefix(file_paths)
-            repo_name = common_prefix.split(os.sep)[0]
+            # Normalize file paths and find the common path
+            file_paths = [os.path.normpath(file.filename) for file in files]
+            common_path = os.path.commonpath(file_paths) if file_paths else ''
+            repo_name = os.path.basename(common_path) if common_path else 'default_repo_name'
+
+            current_app.logger.debug(f"Common path: {common_path}, Repo name: {repo_name}")
 
             # Save files preserving their original structure
             for file in files:
-                rel_path = os.path.relpath(file.filename, common_prefix)
+                rel_path = os.path.relpath(file.filename, common_path)
                 file_path = os.path.join(temp_dir, rel_path)
                 os.makedirs(os.path.dirname(file_path), exist_ok=True)
                 file.save(file_path)
@@ -39,11 +41,11 @@ def upload_files():
             current_app.logger.info(f"Processing files in temporary directory: {temp_dir}")
             
             # Generate file tree
-            file_tree = generate_file_tree(temp_dir, root_name=repo_name)
+            file_tree = generate_file_tree(temp_dir, repo_name)
             current_app.logger.info(f"Generated file tree:\n{file_tree}")
 
-            # Use the synchronous combine_files function
-            combined_content = combine_files(temp_dir)
+            # Use the synchronous combine_files function with repo_name
+            combined_content = combine_files(temp_dir, repo_name)
 
             if not combined_content:
                 return jsonify({'error': 'No valid files were found to combine'}), 400
@@ -60,7 +62,8 @@ def upload_files():
                 'message': 'Files combined successfully',
                 'filename': output_filename,
                 'file_tree': file_tree,
-                'preview_content': combined_content
+                'preview_content': combined_content,
+                'repo_name': repo_name
             }), 200
     except Exception as e:
         error_msg = f"Error processing files: {str(e)}\n{traceback.format_exc()}"
