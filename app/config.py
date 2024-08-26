@@ -2,7 +2,6 @@ import os
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads')
-    OUTPUT_FILE = 'combined_output.md'
     ALLOWED_EXTENSIONS = {'py', 'js','jsx','ts','tsx','txt','md', 'html', 'css', 'java', 'cpp', 'h', 'c', 'ts', 'tsx', 'go', 'rs', 'rb', 'php', 'scala', 'kt', 'swift', 'r', 'sql'}
     EXCLUDED_EXTENSIONS = {
         # Images
