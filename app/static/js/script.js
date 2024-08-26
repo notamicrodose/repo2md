@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let downloadFilename = "";
   let topLevelPath = null;
   let allFolders = new Map(); // Map to store all folders and their selection status
+  let originalFolderName = ""; // Store the original folder name
 
   function preventDefaults(e) {
     e.preventDefault();
@@ -66,7 +67,16 @@ document.addEventListener("DOMContentLoaded", function () {
     uploadedFiles = Array.from(files).filter(isAllowedFile);
 
     // Extract the top-level directory path
-    topLevelPath = (uploadedFiles.length > 0) ? uploadedFiles[0].webkitRelativePath.split('/')[0] : null;
+    // topLevelPath = (uploadedFiles.length > 0) ? uploadedFiles[0].webkitRelativePath.split('/')[0] : null;
+    if (uploadedFiles.length > 0) {
+      const firstFilePath = uploadedFiles[0].webkitRelativePath || uploadedFiles[0].name;
+      const pathParts = firstFilePath.split('/');
+      topLevelPath = pathParts[0];
+      originalFolderName = topLevelPath; // Store the original folder name
+    } else {
+      topLevelPath = null;
+      originalFolderName = "";
+    }
 
     // Handle top-level files and extract folders
     uploadedFiles.forEach(file => {
@@ -230,8 +240,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   uploadButton.addEventListener("click", function () {
     const selectedFiles = uploadedFiles.filter(file => {
-        const folderName = file.webkitRelativePath.split('/')[1];
-        return allFolders.get(folderName);
+        const pathParts = file.webkitRelativePath.split('/');
+        if (pathParts.length === 2) {
+            // Top-level file
+            return allFolders.get('_root_');
+        } else {
+            // File in subdirectory
+            const folderName = pathParts[1];
+            return allFolders.get(folderName);
+        }
     });
 
     if (selectedFiles.length === 0) {
@@ -241,6 +258,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let formData = new FormData();
     selectedFiles.forEach((file) => formData.append("files[]", file));
+    formData.append("folder_name", originalFolderName); // Add the original folder name to the form data
 
     updateStatus("Uploading files...");
     progressBarContainer.style.display = "block";
@@ -277,13 +295,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .catch((error) => {
-            console.error("Error:", error);
-            updateStatus(
-                "An error occurred during upload: " +
-                (error.error || error.message || "Unknown error")
-            );
-            progressBarContainer.style.display = "none";
-        });
+          console.error("Error:", error);
+          updateStatus(
+              "An error occurred during upload: " +
+              (error.error || error.message || "Unknown error")
+          );
+          progressBarContainer.style.display = "none";
+      });
   });
 
   function displayPreview(content, repo_name) {
