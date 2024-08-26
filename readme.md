@@ -1,25 +1,21 @@
 # repo2md
 
-repo2md is a web app built with python (flask), html, css and vanilla js that allows users to upload github repos (folders) and combine them into a single Markdown file to make it easier to share code with LLMs.
+repo2md is a web app built with python, html, css and vanilla js that allows users to upload github repos (folders) and combine them into a single Markdown file to make it easier to share code with LLMs. Project is developed by Gabriel Kripalani (gabriel@agenticc.com)
 
-Its simple, but it does the job. 
-
-Contributions are welcome!
+## Utility
+The web ui lets you combine a repository into a single properly formatted .md file. It automatically excludes folders such as `node_modules`, `__pycache__` and a lot of file extensions unrelated to the sourcecode. You also have the option to manually exclude specific directories or files.
 
 ## Features
 
 - Drag and drop file uploader
-- Deselect unwanted file before downloading
-- Combines various file types into a single Markdown file via simple UI
-- Display a preview of the generated markdown file
-- Syntax highlighting in preview
-- Download the combined md file
-- Excludes certain file types from the combined file (node_modules, .git, etc.)
-- Creates a file tree of the repo
+- Select/deselect folders and files before combining files
+- Preview the generated markdown file before downloading
+- Syntax highlighting
+- Excludes unwanted directories and file types (node_modules, .git, etc.)
+- Includes a file tree of the repo in the output file
 
 ## Roadmap
 
-- Add ability to deselect specific folders from the output
 - Integration with GitHub
 - API access
 - Refactoring
@@ -54,8 +50,13 @@ Contributions are welcome!
 
 3. Use the interface to upload files, combine them, and download the result.
 
-## Creator
-Gabriel Kripalani (gabriel@agenticc.com)
-
 ## License
-[MIT](https://choosealicense.com/licenses/mit/)
+[Apache 2.0](https://choosealicense.com/licenses/apache-2.0/)
+
+## Copyright Notice
+
+© 2024 Gabriel Kripalani. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
