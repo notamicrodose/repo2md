@@ -1,3 +1,4 @@
+// scripts.js
 document.addEventListener("DOMContentLoaded", function () {
   let dropArea = document.getElementById("drop-area");
   let uploadButton = document.getElementById("uploadBtn");
@@ -6,6 +7,11 @@ document.addEventListener("DOMContentLoaded", function () {
   let progressBar = document.getElementById("progress-bar");
   let progressBarContainer = document.getElementById("progress-bar-container");
   let fileInput = document.getElementById("fileElem");
+  let uploadedFiles = [];
+  let downloadFilename = "";
+  let topLevelPath = null;
+  let allFolders = new Map(); // Map to keep keep track of all folders and their selection status
+  let originalFolderName = ""; // Keeping the OG folder name
 
   const excludedExtensions = [
     "png", "jpg", "jpeg", "gif", "bmp", "tiff", "svg", "webp",
@@ -21,13 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const excludedDirectories = [
     "node_modules", "__pycache__", ".git", ".svn", ".hg", ".idea", ".vscode",
     "build", "dist", "target"
-  ];
-
-  let uploadedFiles = [];
-  let downloadFilename = "";
-  let topLevelPath = null;
-  let allFolders = new Map(); // Map to store all folders and their selection status
-  let originalFolderName = ""; // Store the original folder name
+  ]; 
 
   function preventDefaults(e) {
     e.preventDefault();
@@ -66,103 +66,212 @@ document.addEventListener("DOMContentLoaded", function () {
     let files = e.target.files || e.dataTransfer.files;
     uploadedFiles = Array.from(files).filter(isAllowedFile);
 
-    // Extract the top-level directory path
-    // topLevelPath = (uploadedFiles.length > 0) ? uploadedFiles[0].webkitRelativePath.split('/')[0] : null;
-    if (uploadedFiles.length > 0) {
-      const firstFilePath = uploadedFiles[0].webkitRelativePath || uploadedFiles[0].name;
-      const pathParts = firstFilePath.split('/');
-      topLevelPath = pathParts[0];
-      originalFolderName = topLevelPath; // Store the original folder name
-    } else {
-      topLevelPath = null;
-      originalFolderName = "";
-    }
+    // Build folder structure
+    folderStructure = { name: 'root', isSelected: true, children: {} };
+    originalFolderName = uploadedFiles.length > 0 ? uploadedFiles[0].webkitRelativePath.split('/')[0] : '';
 
-    // Handle top-level files and extract folders
     uploadedFiles.forEach(file => {
         const relativePath = file.webkitRelativePath || file.name;
         const pathParts = relativePath.split("/");
 
-        if (pathParts.length === 2 && pathParts[0] === topLevelPath) {
-            // This is a top-level file
-            handleTopLevelFile(file);
-        } else if (pathParts.length > 2 && pathParts[0] === topLevelPath) {
-            // This is a file in a subdirectory
-            const folderName = pathParts[1];
-            if (!allFolders.has(folderName)) {
-                allFolders.set(folderName, true); // Initialize as selected
+        let currentLevel = folderStructure;
+        for (let i = 0; i < pathParts.length - 1; i++) {
+            if (!currentLevel.children[pathParts[i]]) {
+                currentLevel.children[pathParts[i]] = { name: pathParts[i], isSelected: true, children: {} };
             }
+            currentLevel = currentLevel.children[pathParts[i]];
         }
     });
 
+    // Initialize allFolders Map
+    allFolders = new Map();
+    initializeFolderMap(folderStructure, '');
+
     updateFolderGallery();
     updateFileGallery();
-  }
+}
 
-  function updateFolderGallery() {
-    let folderGallery = document.getElementById("folderGallery");
-    folderGallery.innerHTML = ""; // Clear current folder display
-    
-    // Update the gallery with all folders
-    allFolders.forEach((isSelected, folder) => {
-        let div = document.createElement("div");
-        div.textContent = folder === '_root_' ? 'root' : folder;
-        div.classList.toggle('deselected', !isSelected);
+function initializeFolderMap(folder, path) {
+    const fullPath = path ? `${path}/${folder.name}` : folder.name;
+    allFolders.set(fullPath, folder.isSelected);
 
-        // Create toggle icon
-        let toggleIcon = document.createElement("span");
-        toggleIcon.textContent = isSelected ? "✓" : "×";
-        toggleIcon.classList.add("toggle-icon");
-        toggleIcon.addEventListener("click", function () {
-            toggleFolder(folder);
-        });
-
-        div.appendChild(toggleIcon);
-        folderGallery.appendChild(div);
+    Object.values(folder.children).forEach(child => {
+        initializeFolderMap(child, fullPath);
     });
+}
+
+function updateFolderGallery() {
+  let folderGallery = document.getElementById("folderGallery");
+  folderGallery.innerHTML = "";
+
+  function renderFolder(folder, path = '') {
+      let div = document.createElement("div");
+      div.className = "folder-item";
+
+      let checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = folder.isSelected;
+      checkbox.addEventListener("change", () => toggleFolder(folder, path));
+
+      let label = document.createElement("label");
+      label.textContent = folder.name;
+
+      div.appendChild(checkbox);
+      div.appendChild(label);
+
+      if (Object.keys(folder.children).length > 0) {
+          let childrenContainer = document.createElement("div");
+          childrenContainer.className = "folder-children";
+          Object.entries(folder.children).forEach(([childName, childFolder]) => {
+              childrenContainer.appendChild(renderFolder(childFolder, path ? `${path}/${childName}` : childName));
+          });
+          div.appendChild(childrenContainer);
+      }
+
+      return div;
   }
 
-  function toggleFolder(folder) {
-    const isSelected = allFolders.get(folder);
-    allFolders.set(folder, !isSelected);
-    updateFolderGallery();
-    updateFileGallery();
-  }
+  Object.values(folderStructure.children).forEach(folder => {
+      folderGallery.appendChild(renderFolder(folder, folder.name));
+  });
+}
 
-  function updateFileGallery() {
+function toggleFolder(folder, path) {
+  folder.isSelected = !folder.isSelected;
+  allFolders.set(path, folder.isSelected);
+
+  function toggleSubfolders(f, p) {
+      Object.entries(f.children).forEach(([childName, child]) => {
+          child.isSelected = f.isSelected;
+          const childPath = p ? `${p}/${childName}` : childName;
+          allFolders.set(childPath, child.isSelected);
+          toggleSubfolders(child, childPath);
+      });
+  }
+  toggleSubfolders(folder, path);
+
+  updateFolderGallery();
+  updateFileGallery();
+}
+
+let sortDirection = {
+    sortBy: null, // Keeps track of which column is currently sorted
+    direction: null // true for ascending, false for descending
+};
+
+function sortFiles(files, sortBy, direction) {
+    return files.sort((a, b) => {
+        if (sortBy === 'name') {
+            const nameA = a.webkitRelativePath.toLowerCase();
+            const nameB = b.webkitRelativePath.toLowerCase();
+            if (nameA < nameB) return direction ? -1 : 1;
+            if (nameA > nameB) return direction ? 1 : -1;
+            return 0;
+        } else if (sortBy === 'size') {
+            return direction ? a.size - b.size : b.size - a.size;
+        }
+    });
+}
+
+function updateFileGallery() {
     let gallery = document.getElementById("gallery");
-    gallery.innerHTML = "";
+    gallery.innerHTML = ""; 
+
+    // create table
+    let table = document.createElement("table");
+    table.className = "file-table";
+    table.cellSpacing = 0; // deprecated but works
+    
+    // table header
+    let thead = document.createElement("thead");
+    let headerRow = document.createElement("tr");
+
+    let nameHeader = document.createElement("th");
+    nameHeader.textContent = "File Name";
+    nameHeader.className = "file-header";
+    nameHeader.style.cursor = "pointer";
+    nameHeader.addEventListener("click", () => handleSort("name"));
+    headerRow.appendChild(nameHeader);
+
+    let sizeHeader = document.createElement("th");
+    sizeHeader.textContent = "Size";
+    sizeHeader.className = "file-header";
+    sizeHeader.style.cursor = "pointer";
+    sizeHeader.addEventListener("click", () => handleSort("size"));
+    headerRow.appendChild(sizeHeader);
+
+    let actionHeader = document.createElement("th");
+    actionHeader.textContent = "";
+    headerRow.appendChild(actionHeader);
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // table body
+    let tbody = document.createElement("tbody");
+
     let displayedFiles = uploadedFiles.filter(file => {
         const pathParts = file.webkitRelativePath.split('/');
-        if (pathParts.length === 2) {
-            // Top-level file
-            return allFolders.get('_root_');
-        } else {
-            // File in subdirectory
-            const folderName = pathParts[1];
-            return allFolders.get(folderName);
-        }
+        const folderPath = pathParts.slice(0, -1).join('/');
+        return allFolders.get(folderPath) !== false;
     });
 
-    displayedFiles.forEach((file) => {
-        let div = document.createElement("div");
-        div.textContent = `${file.webkitRelativePath || file.name} (${formatFileSize(file.size)})`;
+    displayedFiles = sortFiles(displayedFiles, sortDirection.sortBy, sortDirection.direction);
 
-        // Create remove icon
+    displayedFiles.forEach((file) => {
+        let row = document.createElement("tr");
+        row.className = "file-row";
+
+        let nameCell = document.createElement("td");
+        nameCell.className = "file-name";
+
+        // Extract only parent folder and file name
+        const pathParts = file.webkitRelativePath.split('/');
+        const parentFolderAndFileName = pathParts.slice(-2).join('/');
+
+        nameCell.textContent = parentFolderAndFileName;
+
+        // Set full path as title for hover tooltip
+        nameCell.title = file.webkitRelativePath || file.name;
+        row.appendChild(nameCell);
+
+        let sizeCell = document.createElement("td");
+        sizeCell.className = "file-size";
+        sizeCell.textContent = formatFileSize(file.size);
+        row.appendChild(sizeCell);
+
+        // create remove icon cell
+        let actionCell = document.createElement("td");
         let removeIcon = document.createElement("span");
-        removeIcon.textContent = "X";
-        removeIcon.classList.add("remove-icon");
+        removeIcon.textContent = "🚫";
+        removeIcon.className = "remove-icon";
         removeIcon.addEventListener("click", function () {
             removeFile(file);
         });
+        actionCell.appendChild(removeIcon);
+        row.appendChild(actionCell);
 
-        div.appendChild(removeIcon);
-        gallery.appendChild(div);
+        tbody.appendChild(row);
     });
 
-    document.getElementById("fileCount").textContent =
-      `${displayedFiles.length} files selected`;
-  }
+    table.appendChild(tbody);
+    gallery.appendChild(table);
+
+    document.getElementById("fileCount").textContent = `${displayedFiles.length} files selected`;
+}
+
+function handleSort(column) {
+    if (sortDirection.sortBy === column) {
+        // Toggle direction if already sorting by this column
+        sortDirection.direction = !sortDirection.direction;
+    } else {
+        // Otherwise, sort by this column in ascending order
+        sortDirection.sortBy = column;
+        sortDirection.direction = true;
+    }
+    updateFileGallery();
+}
+
 
   function removeFile(file) {
     const index = uploadedFiles.indexOf(file);
@@ -172,29 +281,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Check if this was the last file in its folder
     const pathParts = file.webkitRelativePath.split('/');
+    let currentLevel = folderStructure;
+
+    // Traverse down the folder structure to the file's directory
+    for (let i = 0; i < pathParts.length - 1; i++) {
+        currentLevel = currentLevel.children[pathParts[i]];
+    }
+
+    // Remove the file
     if (pathParts.length === 2) {
         // This is a top-level file
         const rootFiles = uploadedFiles.filter(f => f.webkitRelativePath.split('/').length === 2);
         if (rootFiles.length === 0) {
-            allFolders.delete('_root_');
+            delete folderStructure.children[pathParts[0]];
         }
     } else {
-        const folderPath = pathParts[1];
-        const filesInSameFolder = uploadedFiles.some(f => f.webkitRelativePath.split('/')[1] === folderPath);
+        const filesInSameFolder = uploadedFiles.some(f => f.webkitRelativePath.startsWith(pathParts.slice(0, -1).join('/')));
         if (!filesInSameFolder) {
-            allFolders.delete(folderPath);
+            delete currentLevel.children[pathParts[pathParts.length - 2]];
         }
     }
 
     updateFolderGallery();
     updateFileGallery();
-  }
+}
+
 
   function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + " bytes";
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + " MB";
-    else return (bytes / 1073741824).toFixed(1) + " GB";
+    if (bytes < 1024) return bytes + "b";
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + "KB";
+    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + "MB";
+    else return (bytes / 1073741824).toFixed(1) + "GB";
   }
 
   function updateStatus(message) {
@@ -239,17 +356,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   uploadButton.addEventListener("click", function () {
+    console.log("Upload button clicked");
+    console.log("Number of uploaded files:", uploadedFiles.length);
+
     const selectedFiles = uploadedFiles.filter(file => {
         const pathParts = file.webkitRelativePath.split('/');
-        if (pathParts.length === 2) {
-            // Top-level file
-            return allFolders.get('_root_');
-        } else {
-            // File in subdirectory
-            const folderName = pathParts[1];
-            return allFolders.get(folderName);
-        }
+        const folderPath = pathParts.slice(0, -1).join('/');
+        const isSelected = allFolders.get(folderPath) !== false;
+        console.log("File:", file.name, "Path:", folderPath, "Selected:", isSelected);
+        return isSelected;
     });
+
+    console.log("Number of selected files:", selectedFiles.length);
 
     if (selectedFiles.length === 0) {
         updateStatus("No files selected");
@@ -257,8 +375,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     let formData = new FormData();
-    selectedFiles.forEach((file) => formData.append("files[]", file));
-    formData.append("folder_name", originalFolderName); // Add the original folder name to the form data
+    selectedFiles.forEach((file) => {
+        formData.append("files[]", file);
+        console.log("Appending file to form data:", file.name);
+    });
+    formData.append("folder_name", originalFolderName);
 
     updateStatus("Uploading files...");
     progressBarContainer.style.display = "block";
@@ -333,7 +454,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const lines = section.split('\n');
                 const header = lines.shift();
                 const headerElement = document.createElement('h3');
-                headerElement.className = 'file-header';
+                headerElement.className = 'file-header-preview';
                 headerElement.textContent = header.trim();
                 sectionElement.appendChild(headerElement);
 
@@ -389,3 +510,4 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.href = `/download/${downloadFilename}`;
   });
 });
+

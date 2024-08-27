@@ -1,0 +1,182 @@
+.header {
+    background-color: var(--card-background);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    padding: 1rem 0;
+}
+
+.h-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+    font-size: 1.75rem;
+    font-weight: 100;
+    color: var(--text-color);
+}
+
+.main {
+    padding: 2rem 0;
+}
+
+.two-column-layout {
+    display: flex;
+    gap: 2rem;
+}
+
+.left-column {
+    flex: 0 0 400px!important;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+.right-column {
+    flex: 0 0 65%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.column {
+    flex: 1;
+    overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+    .two-column-layout {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .left-column, .right-column {
+        flex: 1 1 100%;
+    }
+}
+
+
+/* Card */
+
+.card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--card-background);
+    border-radius: 0.7rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    background: var(--card-background);
+    border-radius: 0.875rem;
+}
+
+.card-body-preview {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 0 0 0.875rem 0.875rem;
+}
+
+.card-header {
+    padding: 1rem 1.5rem;
+    border-radius: 0.875rem 0.875rem 0 0;
+    background-color: #212131;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+
+/* Table */
+
+.table, .file-table {
+    width: 100%;
+    min-width: fit-content;
+    border-collapse: collapse;
+    border-spacing: 0; /* Ensure border spacing is removed */
+}
+
+th {
+    text-align: left!important;
+    font-size: smaller;
+}
+
+th:first-child {
+ padding-left: 12px;
+}
+
+th {
+    width: 8%;
+}
+
+tr {
+    border-bottom: 1px solid #303045; 
+}
+
+tr:first-child {
+    margin-top:80px!important;
+    border-top: none!important;
+}
+
+tr:last-child {
+    border-bottom: none !important;
+}
+
+thead {
+    position: sticky;
+    height: 30px;
+    top: 0;
+    background-color: var(--card-header-background);
+}
+
+tbody {
+    margin-top: 0;
+    padding-top: 0;
+    background-color: #1A1A29;
+}
+
+/* Ad hoc */
+.file-count {
+    margin-top: .5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.file-name {
+    width: 75%;
+    min-width: 75%;
+    max-width: 75%;
+    overflow-x: scroll;
+    font-size: 0.75rem!important;
+    font-weight: normal;
+    padding-left: 12px;
+}
+
+.file-size {
+    width: 14%;
+    font-size: .67rem;
+    color: #a0a0a0;
+    font-family: 'fira code';
+}
+
+.file-row {
+    height: 30px;
+}
+
+.file-header {
+    font-family: 'Inter', sans-serif;
+    font-size: .7rem;
+    font-weight: 400;
+    color: var(--text-color);
+    margin: 0;
+}

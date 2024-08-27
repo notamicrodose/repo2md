@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+        <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>repo2md</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <!-- Base and layout styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}" />
+    <!-- Component styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/buttons.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/upload-area.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/gallery.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/preview.css') }}" />
+    <!-- External resources -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
@@ -33,9 +41,9 @@
                                 <label for="fileElem" class="btn btn-primary">Select Repository</label>
                                 <input type="file" id="fileElem" multiple webkitdirectory directory hidden />
                             </div>
-                            <h4 class="gallery-heading">Folders in repo</h4>
+                            <h4 class="gallery-heading">Select/deselect folders</h4>
                             <div id="folderGallery" class="folder-gallery"></div>
-                            <h4 class="gallery-heading">Files in repo</h4>
+                            <h4 class="gallery-heading">Review files to combine</h4>
                             <div id="gallery" class="file-gallery"></div>
                             <div class="file-count" id="fileCount">0 files selected</div>
                             <div class="action-buttons">
@@ -80,3 +88,4 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
+

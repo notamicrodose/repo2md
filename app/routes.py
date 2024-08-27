@@ -70,6 +70,7 @@ def upload_files():
         current_app.logger.error(error_msg)
         return jsonify({'error': 'An error occurred while processing the files. Please check the server logs for more information.'}), 500
 
+
 @main.route('/download/<filename>')
 def download_file(filename):
     output_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
