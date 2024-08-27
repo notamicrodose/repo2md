@@ -1,0 +1,74 @@
+.gallery-heading {
+    padding-top: 1rem;
+    margin-bottom: 0;
+    font-size: .94rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.file-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: .5rem;
+    min-height: 50px;
+    max-height: 155px !important;
+    overflow-y: auto;
+    background: #212131;
+    padding: 0 0.5rem 0 0;
+    border-radius: 0.4rem;
+    border: 1px solid #303045;
+}
+
+.file-gallery div {
+    background-color: #101018;
+    padding: 0.4rem 0.55rem;
+    border-radius: 0.375rem;
+    font-size: 0.69rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+    color: var(--text-color);
+}
+
+.file-gallery .remove-icon {
+    cursor: pointer;
+    color: var(--error-color);
+    margin-left: 0.5rem;
+    font-weight: bold;
+}
+
+.folder-gallery {
+    background: #212131;
+    border-radius: 0.5rem;
+    border: 1px solid #303045;
+    padding: 12px;
+    margin-top: .5rem;
+    max-height: 200px;
+    min-height: 50px;
+    overflow-y: auto;
+    font-family: 'Inter', sans-serif;
+}
+
+.folder-item {
+    margin-bottom: 8px;
+}
+
+.folder-item label {
+    display: inline-block;
+    margin-left: 8px;
+    color: #e0e0e0;
+    cursor: pointer;
+}
+
+.folder-children {
+    margin-left: 20px;
+    border-left: 1px solid #3d3d50;
+    padding-left: 12px;
+}
+
+.folder-gallery div {
+    background-color: #212131;
+    font-size: 0.69rem;
+    color: var(--text-color);
+}

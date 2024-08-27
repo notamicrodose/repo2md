@@ -1,0 +1,44 @@
+:root {
+    --primary-color: #6A66FF;
+    --primary-hover: #7270FF;
+    --secondary-color: #2fd19a;
+    --secondary-hover: #27b585;
+    --background-color: #101018;
+    --background-gradient: linear-gradient(135deg, #121212, #333333);
+    --card-background: #181825;
+    --card-header-background: #262626;
+    --text-color: #e0e0e0;
+    --text-muted: #8c8c8c;
+    --border-color: #303045;
+    --success-color: #28c76f;
+    --error-color: #ff4b4b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
