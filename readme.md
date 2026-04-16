@@ -1,6 +1,6 @@
 # repo2md
 
-repo2md is a web app built with python, html, css and vanilla js that allows users to upload github repos (folders) and combine them into a single Markdown file to make it easier to share code with LLMs. Feedback: gabriel@agenticc.com
+repo2md is a web app built with python, html, css and vanilla js that allows users to upload github repos (folders) and combine them into a single Markdown file to make it easier to share code with LLMs. Feedback: gabriel@kripalani.dk
 
 ## Utility
 The web ui lets you combine a repository into a single properly formatted .md file. It automatically excludes folders such as `node_modules`, `__pycache__` and a lot of file extensions unrelated to the sourcecode. You also have the option to manually exclude specific directories or files.
